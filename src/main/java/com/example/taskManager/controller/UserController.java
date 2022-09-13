@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -42,13 +44,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(Authentication authentication){
+    public String login(@RequestBody Authentication authentication){
         try{
             return userService.userAuthentication(authentication);
         }
         catch (Exception e){
-            return e.getMessage();
+            return e.getLocalizedMessage();
         }
-
     }
+    @GetMapping("/redis/get/all")
+    public Map<String,String> redisGetAll(){
+        try {
+            return userService.redisGetAll();
+        }
+        catch (Exception e){
+            System.out.println("hello");
+            return new HashMap<>();
+        }
+    }
+
 }

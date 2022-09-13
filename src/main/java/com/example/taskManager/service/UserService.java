@@ -6,6 +6,7 @@ import com.example.taskManager.model.Authentication;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface UserService {
@@ -13,4 +14,6 @@ public interface UserService {
     public List<User> getAllUser();
     public String deleteAllUsers();
     public String userAuthentication(Authentication authentication) throws Exception;
+    public Map<String,String> redisGetAll();
+
 }

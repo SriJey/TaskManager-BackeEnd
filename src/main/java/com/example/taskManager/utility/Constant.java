@@ -13,4 +13,11 @@ public class Constant {
             "Password must contain atleast one uppercase character.\n"+
             "Password must contain atleast one number.\n"+
             "Password must contains atleast one special character.";
+
+    //Email Validation
+    public static final String EMAIL_ALREADY_EXISTS = "Email id is already associated with the application";
+    public static final String EMAIL_NOT_EXISTS = "Email doesnot exists";
+    public static final String INCORRECT_PASSWORD = "Incorrect Password!!!";
+    public static final String EMAIL_PASSWORD_MATCH="Password and Email id Matches";
+    public static final String REDIS_MASTER_KEY = "MASTERKEY";
 }
