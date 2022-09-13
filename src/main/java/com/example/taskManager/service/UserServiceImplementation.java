@@ -65,10 +65,10 @@ public class UserServiceImplementation implements  UserService{
         if(redisTemplate.opsForHash().hasKey(Constant.REDIS_MASTER_KEY,email)){ //If present in Cache
             String retrievedPassword = (String)redisTemplate.opsForHash().get(Constant.REDIS_MASTER_KEY,email);
             if(retrievedPassword.equals(password)){
-                return Constant.EMAIL_PASSWORD_MATCH;
+                return Constant.EMAIL_PASSWORD_MATCH; // CORRECT PASSWORD
             }
             else{
-                return Constant.INCORRECT_PASSWORD;
+                return Constant.INCORRECT_PASSWORD; //Incorrect Password
             }
         }
         else{ //If not present in Cache check in DB

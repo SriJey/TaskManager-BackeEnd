@@ -5,7 +5,7 @@ public class Constant {
             + "(?=.*[a-z])(?=.*[A-Z])"
             + "(?=.*[^A-Za-z0-9])"
             + "(?=\\S+$).{8,20}$";
-    final public static String EMAIL_REGEX = "[a-zA-Z0-9_+&*-]+(?:\\."+"[a-zA-Z0-9_+&*-]+)*@"+"(?:[a-zA-Z0-9-]+\\.)+[a-z"+"A-Z]{2,7}$";
+    //final public static String EMAIL_REGEX = "[a-zA-Z0-9_+&*-]+(?:\\."+"[a-zA-Z0-9_+&*-]+)*@"+"(?:[a-zA-Z0-9-]+\\.)+[a-z"+"A-Z]{2,7}$";
     final public static String QUINBAY_EMAIL_REGEX="[a-zA-Z0-9_+&*-]+(?:.[a-zA-Z0-9_+&*-]+)*(?i)@quinbay.com$";
     final public static String SUCCESS = "Success";
     final public static String PASSWORD_PASSAGE="Password should at least be 8 characters long\n"+
@@ -20,4 +20,34 @@ public class Constant {
     public static final String INCORRECT_PASSWORD = "Incorrect Password!!!";
     public static final String EMAIL_PASSWORD_MATCH="Password and Email id Matches";
     public static final String REDIS_MASTER_KEY = "MASTERKEY";
+    public static final String CROSS_ORIGIN = "*";
+    //Register Validation
+    public static final String NOT_A_VALID_EMAIL = "Not a valid Email";
+    public static final String EMAIL_EMPTY = "Email cannot be Empty";
+
+    //Role Validation
+    public static final String ROLE_EMPTY = "Role cannot be Empty";
+    public static final String ADMIN = "admin";
+    public static final String INTERN = "intern";
+    public static final String ROLE_EXCEPTION = "Role should either be an Intern or an Admin";
+
+    //Name Exception
+    public static final String NAME_REGEX = "^[A-Za-z][A-Za-z ]{2,31}$";
+    public static final String NAME_EMPTY = "Name cannot be empty.";
+    public static final int NAME_MIN_LENGTH = 2;
+    public static final int NAME_MAX_LENGTH = 32;
+
+    public static final String NAME_MINIMUM_LENGTH = "Length of the name must be greater than 2 Characters at least.";
+    public static final String Name_MAXIMUM_LENGTH = "Length of the name must be lesser than 32 Characters.";
+    public static final String NAME_INVALID_INPUT = "Invalid Name Input";
+
+    //Controller
+    public static final String REGISTER = "/register";
+    public static final String USER ="/user";
+    public static final String ALL_USER = "/allusers";
+    public static final String DELETE_ALL = "/delete/all";
+    public static final String LOGIN = "/login";
+    public static final String REDIS_ALL_ELEMENT = "/redis/get/all";
+
+
 }

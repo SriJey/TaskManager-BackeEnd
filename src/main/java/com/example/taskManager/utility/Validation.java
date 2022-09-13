@@ -9,17 +9,17 @@ public class Validation {
     public static String validateName(String name) throws Exception{
         name = name.trim();
         if(name.isEmpty()){
-            throw new NameException("Name cannot be empty.");
+            throw new NameException(Constant.NAME_EMPTY);
         }
-        if(name.length()<=2){
-            throw new NameException("Length of the name must be greater than 2 Characters at least.");
+        if(name.length()<=Constant.NAME_MIN_LENGTH){
+            throw new NameException(Constant.NAME_MINIMUM_LENGTH);
         }
-        if(name.length()>32){
-            throw new NameException("Length of the name must be lesser than 32 Characters.");
+        if(name.length()>Constant.NAME_MAX_LENGTH){
+            throw new NameException(Constant.Name_MAXIMUM_LENGTH);
         }
 
-        if(!name.matches("^[A-Za-z][A-Za-z ]{2,31}$")){
-            throw new NameException("Invalid Name Input.");
+        if(!name.matches(Constant.NAME_REGEX)){
+            throw new NameException(Constant.NAME_INVALID_INPUT);
         }
         return Constant.SUCCESS;
     }
@@ -27,21 +27,21 @@ public class Validation {
     public static String validateEmail(String email) throws Exception{
         email=email.trim();
         if(email.isEmpty()){
-            throw new EmailException("Email cannot be Empty");
+            throw new EmailException(Constant.EMAIL_EMPTY);
         }
         if(!email.matches(Constant.QUINBAY_EMAIL_REGEX)){
-            throw new EmailException("Not a valid Email");
+            throw new EmailException(Constant.NOT_A_VALID_EMAIL);
         }
         return Constant.SUCCESS;
     }
     public static String validateRole(String role)throws Exception{
         if(role.isEmpty()){
-            throw new RoleException("Role cannot be Empty");
+            throw new RoleException(Constant.ROLE_EMPTY);
         }
-        if(role.equalsIgnoreCase("admin")||role.equalsIgnoreCase("intern")){
+        if(role.equalsIgnoreCase(Constant.ADMIN)||role.equalsIgnoreCase(Constant.INTERN)){
             return Constant.SUCCESS;
         }
-        throw new RoleException("Role should either be an Intern or an Admin");
+        throw new RoleException(Constant.ROLE_EXCEPTION);
     }
     public static String validatePassword(String password)throws Exception{
         String regex = Constant.PASSWORD_REGEX;
