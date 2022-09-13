@@ -41,8 +41,14 @@ public class UserController {
         return userService.deleteAllUsers();
     }
 
-//    @PostMapping("/login")
-//    public String login(Authentication authentication){
-//
-//    }
+    @PostMapping("/login")
+    public String login(Authentication authentication){
+        try{
+            return userService.userAuthentication(authentication);
+        }
+        catch (Exception e){
+            return e.getMessage();
+        }
+
+    }
 }

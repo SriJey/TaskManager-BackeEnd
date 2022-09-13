@@ -28,12 +28,13 @@ public class hashPassword {
             }
 
             // return the HashText
+            System.out.println(hashtext);
             return hashtext;
         }
 
         // For specifying wrong message digest algorithms
         catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            return "Exception";
         }
     }
 }

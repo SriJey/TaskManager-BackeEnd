@@ -5,7 +5,9 @@ import com.example.taskManager.model.Authentication;
 import com.example.taskManager.repository.UserRepo;
 import com.example.taskManager.utility.Constant;
 import com.example.taskManager.utility.Validation;
+import com.example.taskManager.utility.hashPassword;
 import com.sun.tools.classfile.ConstantPool;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +44,21 @@ public class UserServiceImplementation implements  UserService{
 
     @Override
     public String userAuthentication(Authentication authentication) throws Exception {
+        System.out.println("Hello 01");
+        String email = authentication.getEmail();
+        System.out.println("Hello 02");
+        String password = hashPassword.encryptThisString(authentication.getPassword());
+        System.out.println("Hello 1");
+        if( userRepo.findByEmail(email)!=null){
+            if(userRepo.findByEmailAndPassword(email,password)!=null){
+                return "Password and Email id Matches";
+            }
+            else{
+                return "Incorrect Password";
+            }
+        }
+        System.out.println("Hello 2");
 
-        return Constant.SUCCESS;
+        return "Email doesnot exits";
     }
 }
