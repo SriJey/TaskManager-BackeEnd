@@ -5,6 +5,7 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.PasswordChange;
 import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserLogin;
 import com.example.taskManager.service.UserService;
@@ -100,6 +101,10 @@ public class UserController {
         catch (Exception exception){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Something went Wrong");
         }
+    }
+    @PutMapping("/change/password")
+    public String changePassword(@RequestBody  PasswordChange passwordChange){
+        return userService.changePassword(passwordChange);
     }
 
 }

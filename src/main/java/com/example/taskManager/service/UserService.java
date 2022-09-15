@@ -6,6 +6,7 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.PasswordChange;
 import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserLogin;
 import org.springframework.stereotype.Repository;
@@ -22,5 +23,6 @@ public interface UserService {
     Map<String,String> redisGetAll();
     boolean changeStatus(String email);
     List<BasicUserDetails> getBasicDetails();
-    public BasicUserDetails getUsersById(String id) throws UserNotFoundException;
+    BasicUserDetails getUsersById(String id) throws UserNotFoundException;
+    String changePassword(PasswordChange passwordChange);
 }

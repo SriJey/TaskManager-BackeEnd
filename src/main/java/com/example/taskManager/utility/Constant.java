@@ -59,8 +59,12 @@ public class Constant {
     //Mail Rest Template
     public static final String MAIL_SUBJECT = "Account Disabled.";
     public static final String MAIL_CONTENT = "Your account has been Disabled";
-    public static final String REST_TEMPLATE_URL = "http://10.30.1.35:8081/products";
+    public static final String REST_TEMPLATE_URL = "http://10.30.1.35:8081/sendrandom";
     public static final String GET_DETAILS ="/get/details";
+
+    //Mail Model
+    public static final String MAIL_NEW_REGISTER_SUBJECT="Welcome!!";
+    public static final String MAIL_NEW_REGISTER_MESSAGE="This is your password: ";
 }
 
 

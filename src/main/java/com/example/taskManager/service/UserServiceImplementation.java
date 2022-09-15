@@ -6,6 +6,7 @@ import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
 import com.example.taskManager.model.MailModel;
+import com.example.taskManager.model.PasswordChange;
 import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserBasicLogin;
 import com.example.taskManager.model.UserLogin;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +61,6 @@ public class UserServiceImplementation implements  UserService{
     public RegisterResponse addUser(UserLogin userLogin) throws Exception{
         Validation.validateName(userLogin.getName());
         Validation.validateEmail(userLogin.getEmail());
-        Validation.validatePassword(userLogin.getPassword());
         if(userRepo.findByEmail(userLogin.getEmail())!=null){
             return new RegisterResponse(Constant.ERROR,Constant.EMAIL_ALREADY_EXISTS,Constant.NULL);
         }
@@ -67,7 +68,17 @@ public class UserServiceImplementation implements  UserService{
         user.setId(UUID.randomUUID().toString());
         user.setEmail(userLogin.getEmail().toLowerCase());
         user.setName(userLogin.getName().trim());
-        user.setPassword(encryptThisString(userLogin.getPassword()));
+        String generatedPassword = UUID.randomUUID().toString();
+        user.setPassword(hashPassword.encryptThisString(generatedPassword));
+
+        // To trigger Mail REst API
+
+        MailModel mailModel = new MailModel();
+        mailModel.setMessage(Constant.MAIL_NEW_REGISTER_MESSAGE+generatedPassword);
+        mailModel.setRecieverMail(user.getEmail());
+        mailModel.setSubject(Constant.MAIL_NEW_REGISTER_SUBJECT);
+        mailUser(mailModel);
+
         user.setStatus(false);
         user.setRole(Constant.USER_ROLE);
         userRepo.save(user);
@@ -94,7 +105,7 @@ public class UserServiceImplementation implements  UserService{
     }
 
     @Override
-    public AuthenticationResponse userAuthentication(Authentication authentication) throws JsonProcessingException {
+    public AuthenticationResponse userAuthentication(Authentication authentication) throws JsonProcessingException,Exception {
         String email = authentication.getEmail();
         String password = hashPassword.encryptThisString(authentication.getPassword());
 
@@ -133,7 +144,6 @@ public class UserServiceImplementation implements  UserService{
                     return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH,userBasicLogin.getRole());
                 }
                 else {
-                    //New Reddis Implementation
                     if(redisTemplate.hasKey(email)){
                         int count = Integer.parseInt((String)redisTemplate.opsForValue().get(email));
                         if(count>=3){
@@ -147,7 +157,6 @@ public class UserServiceImplementation implements  UserService{
                     else{
                         redisTemplate.opsForValue().set(email,"1");
                     }
-
                     return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD,Constant.NULL);
                 }
             }
@@ -197,6 +206,17 @@ public class UserServiceImplementation implements  UserService{
         return basicUserDetails;
     }
 
+    @Override
+    public String changePassword(PasswordChange passwordChange) {
+        Optional<User> user = userRepo.findById(passwordChange.getId());
+        if(user!=null){
+            user.get().setPassword(hashPassword.encryptThisString(passwordChange.getPassword()) );
+            userRepo.save(user.get());
+            return Constant.SUCCESS;
+        }
+        return Constant.ERROR;
+    }
+
     public void changeStatusToFalse(String email){
         User user = userRepo.findByEmail(email);
         if(user!=null){
@@ -206,14 +226,12 @@ public class UserServiceImplementation implements  UserService{
 
     }
 
-    public void mailUser(@RequestBody MailModel mailModel) {
-        mailModel.setMessage(Constant.MAIL_CONTENT);
-        mailModel.setMessage(Constant.MAIL_SUBJECT);
+    public void mailUser(MailModel mailModel) throws Exception{
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         HttpEntity<MailModel> entity = new HttpEntity<MailModel>(mailModel,headers);
+        restTemplate.exchange(Constant.REST_TEMPLATE_URL, HttpMethod.POST,
+                entity, String.class).getBody();
 
-        restTemplate.exchange(
-                Constant.REST_TEMPLATE_URL, HttpMethod.POST, entity, String.class).getBody();
     }
 }
