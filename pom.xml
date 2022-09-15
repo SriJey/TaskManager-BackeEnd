@@ -51,9 +51,12 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
         </dependency>
-
+		<dependency>
+			<groupId>org.modelmapper.extensions</groupId>
+			<artifactId>modelmapper-spring</artifactId>
+			<version>3.0.0</version>
+		</dependency>
     </dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

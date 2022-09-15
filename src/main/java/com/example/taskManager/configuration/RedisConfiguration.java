@@ -1,5 +1,6 @@
 package com.example.taskManager.configuration;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -14,7 +15,7 @@ public class RedisConfiguration {
 
     @Bean
     RedisTemplate<String,String> redisTemplate(){
-        RedisTemplate<String,String > redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String,String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         return redisTemplate;
     }

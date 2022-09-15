@@ -19,7 +19,6 @@ public class Constant {
     public static final String EMAIL_NOT_EXISTS = "Email doesnot exists";
     public static final String INCORRECT_PASSWORD = "Incorrect Password!!!";
     public static final String EMAIL_PASSWORD_MATCH="Password and Email id Matches";
-    public static final String REDIS_MASTER_KEY = "MASTERKEY";
     public static final String CROSS_ORIGIN = "*";
     //Register Validation
     public static final String NOT_A_VALID_EMAIL = "Not a valid Email";
@@ -32,7 +31,7 @@ public class Constant {
     public static final String ROLE_EXCEPTION = "Role should either be an Intern or an Admin";
 
     //Name Exception
-    public static final String NAME_REGEX = "^[A-Za-z][A-Za-z ]{2,31}$";
+    public static final String NAME_REGEX = "^[A-Za-z][A-Za-z. ]{2,31}$";
     public static final String NAME_EMPTY = "Name cannot be empty.";
     public static final int NAME_MIN_LENGTH = 2;
     public static final int NAME_MAX_LENGTH = 32;
@@ -48,6 +47,16 @@ public class Constant {
     public static final String DELETE_ALL = "/delete/all";
     public static final String LOGIN = "/login";
     public static final String REDIS_ALL_ELEMENT = "/redis/get/all";
+    public static final String CHANGE_STATUS = "/status/change/{email}";
 
+    //Authentication Response
+    public static final String ERROR = "ERROR";
+    public static final String OK = "OK";
 
+    //Redis
+    public static final String REDIS_EMAIL_PASSWORD = "MailPassword";
+    public static final String REDIS_INCORRECT_PASSWORD_COUNT = "PasswordCount";
+    public static final String USER_ROLE = "USER";
 }
+
+
