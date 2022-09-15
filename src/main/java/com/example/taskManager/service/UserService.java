@@ -6,6 +6,7 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserLogin;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 
 @Repository
 public interface UserService {
-    AuthenticationResponse addUser(UserLogin user) throws Exception;
+    RegisterResponse addUser(UserLogin user) throws Exception;
     List<User> getAllUser();
     String deleteAllUsers();
     AuthenticationResponse userAuthentication(Authentication authentication) throws Exception;

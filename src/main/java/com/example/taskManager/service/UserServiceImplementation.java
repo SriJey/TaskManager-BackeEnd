@@ -5,6 +5,8 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.MailModel;
+import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserBasicLogin;
 import com.example.taskManager.model.UserLogin;
 import com.example.taskManager.repository.UserRepo;
@@ -15,21 +17,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.taskManager.utility.hashPassword.encryptThisString;
 
 
 @Service
 public class UserServiceImplementation implements  UserService{
+
+    @Autowired
+    RestTemplate restTemplate;
 
     @Autowired
     UserRepo userRepo;
@@ -39,16 +51,17 @@ public class UserServiceImplementation implements  UserService{
 
     @Autowired
     ModelMapper modelMapper;
+
     @Autowired
     ObjectMapper objectMapper;
 
     @Override
-    public AuthenticationResponse addUser(UserLogin userLogin) throws Exception{
+    public RegisterResponse addUser(UserLogin userLogin) throws Exception{
         Validation.validateName(userLogin.getName());
         Validation.validateEmail(userLogin.getEmail());
         Validation.validatePassword(userLogin.getPassword());
         if(userRepo.findByEmail(userLogin.getEmail())!=null){
-            return new AuthenticationResponse(Constant.ERROR,Constant.EMAIL_ALREADY_EXISTS,Constant.NULL);
+            return new RegisterResponse(Constant.ERROR,Constant.EMAIL_ALREADY_EXISTS,Constant.NULL);
         }
         User user = modelMapper.map(userLogin,User.class);
         user.setId(UUID.randomUUID().toString());
@@ -61,7 +74,7 @@ public class UserServiceImplementation implements  UserService{
         UserBasicLogin userBasicLogin = modelMapper.map(user,UserBasicLogin.class);
         String payload = objectMapper.writeValueAsString(userBasicLogin);
         redisTemplate.opsForHash().put(Constant.REDIS_EMAIL_PASSWORD,user.getEmail(),payload);
-        return new AuthenticationResponse(Constant.OK,Constant.SUCCESS,Constant.USER_ROLE);
+        return new RegisterResponse(Constant.OK,Constant.SUCCESS,user.getId());
     }
 
     @Override
@@ -75,6 +88,7 @@ public class UserServiceImplementation implements  UserService{
         Set<String> keys = redisTemplate.opsForHash().keys(Constant.REDIS_EMAIL_PASSWORD);
         for (String key : keys) {
             redisTemplate.opsForHash().delete(Constant.REDIS_EMAIL_PASSWORD,key);
+            redisTemplate.delete(key);
         }
         return Constant.SUCCESS;
     }
@@ -91,7 +105,20 @@ public class UserServiceImplementation implements  UserService{
                 return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH,userBasicLogin.getRole());
             }
             else{
-                // New Redis Implementation
+                // Incorrect Email
+                if(redisTemplate.hasKey(email)){
+                    int count = Integer.parseInt((String)redisTemplate.opsForValue().get(email));
+                    if(count==3){
+                        changeStatusToFalse(email);
+                        MailModel mailModel = new MailModel(email,null,null);
+                        mailUser(mailModel);
+                        return new AuthenticationResponse(Constant.ERROR,"ID-BLOCKED",Constant.NULL);
+                    }
+                    redisTemplate.opsForValue().set(email,String.valueOf(++count), 3600,TimeUnit.SECONDS);
+                }
+                else{
+                    redisTemplate.opsForValue().set(email,"1");
+                }
                 return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD,Constant.NULL);
             }
         }
@@ -107,6 +134,20 @@ public class UserServiceImplementation implements  UserService{
                 }
                 else {
                     //New Reddis Implementation
+                    if(redisTemplate.hasKey(email)){
+                        int count = Integer.parseInt((String)redisTemplate.opsForValue().get(email));
+                        if(count>=3){
+                            changeStatusToFalse(email);
+                            MailModel mailModel = new MailModel(email,null,null);
+                            mailUser(mailModel);
+                            return new AuthenticationResponse(Constant.ERROR,"ID-BLOCKED",Constant.NULL);
+                        }
+                        redisTemplate.opsForValue().set(email,String.valueOf(++count), 3600,TimeUnit.SECONDS);
+                    }
+                    else{
+                        redisTemplate.opsForValue().set(email,"1");
+                    }
+
                     return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD,Constant.NULL);
                 }
             }
@@ -121,13 +162,12 @@ public class UserServiceImplementation implements  UserService{
         return redisTemplate.opsForHash().entries(Constant.REDIS_EMAIL_PASSWORD);
     }
 
-
-
     @Override
     public boolean changeStatus(String email) {
         User user = userRepo.findByEmail(email.toLowerCase());
         if(user!=null){
             user.setStatus(true);
+            redisTemplate.opsForValue().set(email,"0");
             userRepo.save(user);
             return true;
         }
@@ -155,5 +195,25 @@ public class UserServiceImplementation implements  UserService{
         }
         BasicUserDetails basicUserDetails = modelMapper.map(user,BasicUserDetails.class);
         return basicUserDetails;
+    }
+
+    public void changeStatusToFalse(String email){
+        User user = userRepo.findByEmail(email);
+        if(user!=null){
+            user.setStatus(false);
+            userRepo.save(user);
+        }
+
+    }
+
+    public void mailUser(@RequestBody MailModel mailModel) {
+        mailModel.setMessage(Constant.MAIL_CONTENT);
+        mailModel.setMessage(Constant.MAIL_SUBJECT);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<MailModel> entity = new HttpEntity<MailModel>(mailModel,headers);
+
+        restTemplate.exchange(
+                Constant.REST_TEMPLATE_URL, HttpMethod.POST, entity, String.class).getBody();
     }
 }

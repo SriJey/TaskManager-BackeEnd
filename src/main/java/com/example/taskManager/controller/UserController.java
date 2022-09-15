@@ -5,6 +5,7 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.RegisterResponse;
 import com.example.taskManager.model.UserLogin;
 import com.example.taskManager.service.UserService;
 import com.example.taskManager.utility.Constant;
@@ -33,16 +34,16 @@ public class UserController {
     UserService userService;
 
     @PostMapping(Constant.REGISTER)
-    public AuthenticationResponse register(@RequestBody UserLogin user){
+    public RegisterResponse register(@RequestBody UserLogin user){
         try{
             return userService.addUser(user);
         }
         catch (Exception e){
-            return new AuthenticationResponse(Constant.ERROR,e.getMessage(),Constant.NULL);
+            return new RegisterResponse(Constant.ERROR,e.getMessage(),Constant.NULL);
         }
 
     }
-    @GetMapping("/get/details")
+    @GetMapping(Constant.GET_DETAILS)
     public List<BasicUserDetails> getBasicDetails(){
         return userService.getBasicDetails();
     }

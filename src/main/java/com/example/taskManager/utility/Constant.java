@@ -8,7 +8,7 @@ public class Constant {
     //final public static String EMAIL_REGEX = "[a-zA-Z0-9_+&*-]+(?:\\."+"[a-zA-Z0-9_+&*-]+)*@"+"(?:[a-zA-Z0-9-]+\\.)+[a-z"+"A-Z]{2,7}$";
     final public static String QUINBAY_EMAIL_REGEX="[a-zA-Z0-9_+&*-]+(?:.[a-zA-Z0-9_+&*-]+)*(?i)@quinbay.com$";
     final public static String SUCCESS = "Success";
-    final public static String PASSWORD_PASSAGE="Password should at least be 8 characters long\n"+
+    final public static String PASSWORD_PASSAGE="Password should at least be 8 characters long.\n"+
             "Password must contains atleast one lowercase character.\n"+
             "Password must contain atleast one uppercase character.\n"+
             "Password must contain atleast one number.\n"+
@@ -26,8 +26,6 @@ public class Constant {
 
     //Role Validation
     public static final String ROLE_EMPTY = "Role cannot be Empty";
-    public static final String ADMIN = "admin";
-    public static final String INTERN = "intern";
     public static final String ROLE_EXCEPTION = "Role should either be an Intern or an Admin";
 
     //Name Exception
@@ -55,9 +53,14 @@ public class Constant {
 
     //Redis
     public static final String REDIS_EMAIL_PASSWORD = "MailPassword";
-    public static final String REDIS_INCORRECT_PASSWORD_COUNT = "PasswordCount";
     public static final String USER_ROLE = "USER";
     public static final String NULL = null;
+
+    //Mail Rest Template
+    public static final String MAIL_SUBJECT = "Account Disabled.";
+    public static final String MAIL_CONTENT = "Your account has been Disabled";
+    public static final String REST_TEMPLATE_URL = "http://10.30.1.35:8081/products";
+    public static final String GET_DETAILS ="/get/details";
 }
 
 
