@@ -22,7 +22,7 @@ public class Validation {
         if(!name.matches(Constant.NAME_REGEX)){
             throw new NameException(Constant.NAME_INVALID_INPUT);
         }
-        return new AuthenticationResponse(Constant.OK, Constant.SUCCESS);
+        return new AuthenticationResponse(Constant.OK, Constant.SUCCESS,Constant.NULL);
     }
 
     public static AuthenticationResponse validateEmail(String email) throws Exception{
@@ -33,21 +33,23 @@ public class Validation {
         if(!email.matches(Constant.QUINBAY_EMAIL_REGEX)){
             throw new EmailException(Constant.NOT_A_VALID_EMAIL);
         }
-        return new AuthenticationResponse(Constant.OK, Constant.SUCCESS);
+        return new AuthenticationResponse(Constant.OK, Constant.SUCCESS,Constant.NULL);
     }
+
     public static AuthenticationResponse validateRole(String role)throws Exception{
         if(role.isEmpty()){
             throw new RoleException(Constant.ROLE_EMPTY);
         }
         if(role.equalsIgnoreCase(Constant.USER_ROLE)){
-            return new AuthenticationResponse(Constant.OK, Constant.SUCCESS);
+            return new AuthenticationResponse(Constant.OK, Constant.SUCCESS,Constant.NULL);
         }
         throw new RoleException(Constant.ROLE_EXCEPTION);
     }
+
     public static AuthenticationResponse  validatePassword(String password)throws Exception{
         String regex = Constant.PASSWORD_REGEX;
         if(password.matches(regex)) {
-            return new AuthenticationResponse(Constant.OK,Constant.SUCCESS);
+            return new AuthenticationResponse(Constant.OK,Constant.SUCCESS,Constant.NULL);
         }
         throw new PasswordException( Constant.PASSWORD_PASSAGE);
     }

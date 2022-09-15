@@ -1,6 +1,7 @@
 package com.example.taskManager.configuration;
 
 
+import com.example.taskManager.model.UserBasicLogin;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;

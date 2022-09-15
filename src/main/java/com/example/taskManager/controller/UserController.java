@@ -38,7 +38,7 @@ public class UserController {
             return userService.addUser(user);
         }
         catch (Exception e){
-            return new AuthenticationResponse(Constant.ERROR,e.getMessage());
+            return new AuthenticationResponse(Constant.ERROR,e.getMessage(),Constant.NULL);
         }
 
     }
@@ -63,7 +63,7 @@ public class UserController {
             return userService.userAuthentication(authentication);
         }
         catch (Exception e){
-            return new AuthenticationResponse(Constant.ERROR,e.getLocalizedMessage());
+            return new AuthenticationResponse(Constant.ERROR,e.getLocalizedMessage(),Constant.NULL);
         }
     }
 

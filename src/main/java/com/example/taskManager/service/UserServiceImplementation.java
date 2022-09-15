@@ -5,11 +5,14 @@ import com.example.taskManager.exceptions.UserNotFoundException;
 import com.example.taskManager.model.Authentication;
 import com.example.taskManager.model.AuthenticationResponse;
 import com.example.taskManager.model.BasicUserDetails;
+import com.example.taskManager.model.UserBasicLogin;
 import com.example.taskManager.model.UserLogin;
 import com.example.taskManager.repository.UserRepo;
 import com.example.taskManager.utility.Constant;
 import com.example.taskManager.utility.Validation;
 import com.example.taskManager.utility.hashPassword;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,11 +37,10 @@ public class UserServiceImplementation implements  UserService{
     @Autowired
     RedisTemplate redisTemplate;
 
-
-
     @Autowired
     ModelMapper modelMapper;
-
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public AuthenticationResponse addUser(UserLogin userLogin) throws Exception{
@@ -46,7 +48,7 @@ public class UserServiceImplementation implements  UserService{
         Validation.validateEmail(userLogin.getEmail());
         Validation.validatePassword(userLogin.getPassword());
         if(userRepo.findByEmail(userLogin.getEmail())!=null){
-            return new AuthenticationResponse(Constant.ERROR,Constant.EMAIL_ALREADY_EXISTS);
+            return new AuthenticationResponse(Constant.ERROR,Constant.EMAIL_ALREADY_EXISTS,Constant.NULL);
         }
         User user = modelMapper.map(userLogin,User.class);
         user.setId(UUID.randomUUID().toString());
@@ -56,10 +58,11 @@ public class UserServiceImplementation implements  UserService{
         user.setStatus(false);
         user.setRole(Constant.USER_ROLE);
         userRepo.save(user);
-        redisTemplate.opsForHash().put(Constant.REDIS_EMAIL_PASSWORD,user.getEmail(),user.getPassword());
-        return new AuthenticationResponse(Constant.OK,Constant.SUCCESS);
+        UserBasicLogin userBasicLogin = modelMapper.map(user,UserBasicLogin.class);
+        String payload = objectMapper.writeValueAsString(userBasicLogin);
+        redisTemplate.opsForHash().put(Constant.REDIS_EMAIL_PASSWORD,user.getEmail(),payload);
+        return new AuthenticationResponse(Constant.OK,Constant.SUCCESS,Constant.USER_ROLE);
     }
-
 
     @Override
     public List<User> getAllUser() {
@@ -77,19 +80,19 @@ public class UserServiceImplementation implements  UserService{
     }
 
     @Override
-    public AuthenticationResponse userAuthentication(Authentication authentication){
+    public AuthenticationResponse userAuthentication(Authentication authentication) throws JsonProcessingException {
         String email = authentication.getEmail();
         String password = hashPassword.encryptThisString(authentication.getPassword());
 
         if(redisTemplate.opsForHash().hasKey(Constant.REDIS_EMAIL_PASSWORD,email)){ //If present in Cache
-//            LoginResponseDetails loginResponseDetails = (LoginResponseDetails) redisTemplate.opsForHash().get(Constant.REDIS_EMAIL_PASSWORD,email);
-            String retrievedPassword = (String) redisTemplate.opsForHash().get(Constant.REDIS_EMAIL_PASSWORD,email);
-            if(retrievedPassword.equals(password)){
-                return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH);
+            String payload = (String) redisTemplate.opsForHash().get(Constant.REDIS_EMAIL_PASSWORD,email);
+            UserBasicLogin userBasicLogin = objectMapper.readValue(payload,UserBasicLogin.class);
+            if(userBasicLogin.getPassword().equals(password)){
+                return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH,userBasicLogin.getRole());
             }
             else{
                 // New Redis Implementation
-                return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD);
+                return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD,Constant.NULL);
             }
         }
         else{ //If not present in Cache check in DB
@@ -97,16 +100,18 @@ public class UserServiceImplementation implements  UserService{
             if(user!=null){//mail exists in db
                 if(user.getPassword().equals(password)){ //if such combination is present
                     // populate in Redis
-                    redisTemplate.opsForHash().put(Constant.REDIS_EMAIL_PASSWORD,email,password);
-                    return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH);
+                    UserBasicLogin userBasicLogin = modelMapper.map(user,UserBasicLogin.class);
+                    String payload = objectMapper.writeValueAsString(userBasicLogin);
+                    redisTemplate.opsForHash().put(Constant.REDIS_EMAIL_PASSWORD,email,payload);
+                    return new AuthenticationResponse(Constant.OK,Constant.EMAIL_PASSWORD_MATCH,userBasicLogin.getRole());
                 }
                 else {
                     //New Reddis Implementation
-                    return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD);
+                    return new AuthenticationResponse(Constant.ERROR,Constant.INCORRECT_PASSWORD,Constant.NULL);
                 }
             }
             else {
-                return new AuthenticationResponse(Constant.ERROR,Constant.EMAIL_NOT_EXISTS);
+                return new AuthenticationResponse(Constant.ERROR,Constant.EMAIL_NOT_EXISTS,Constant.NULL);
             }
         }
     }

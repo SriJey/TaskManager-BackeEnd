@@ -57,6 +57,7 @@ public class Constant {
     public static final String REDIS_EMAIL_PASSWORD = "MailPassword";
     public static final String REDIS_INCORRECT_PASSWORD_COUNT = "PasswordCount";
     public static final String USER_ROLE = "USER";
+    public static final String NULL = null;
 }
 
 
